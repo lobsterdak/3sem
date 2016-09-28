@@ -5,6 +5,16 @@
 
 void Split(char* string, char * delimiters, char*** tokens, int* tokensCount);
 
+/*
+ * FIXIT: Никаких магических чисел
+ * Создайте константы: 
+ * #define MAX_STRING_SIZE 50
+ * #define MAX_DELIMETERS_COUNT 50
+ * и т.д.
+ * 
+ * P.S. c освободжением памяти мы с вами на семинаре разобрались 
+ */
+
 int main () 
 {	
 	int i, tokensCount = 0;

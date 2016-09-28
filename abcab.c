@@ -21,7 +21,7 @@ void GenerateString(int n, char * string)
 	int i;
 	char * temp;
 	temp =  malloc(sizeof(char) * (1 << (k + 1)));
-	for (i = 1; i < n +1 ; i++)
+	for (i = 1; i < n + 1; i++)
 	{
 		printf("%d. %s \n", i, string);
 		strcpy( temp, string);
