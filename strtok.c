@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+#include <stdlib.h>
 
 void Split(char* string, char * delimiters, char*** tokens, int* tokensCount);
 
 int main () 
 {	
-	int i, tokensCount;
+	int i, tokensCount = 0;
 	char string[50], delimiters[50];
-	char** tokens = (char**)malloc(sizeof(char) * 50); // количество слов 50, длина слова 10 символов
+	char** tokens = (char**)malloc(sizeof(char*) * 50); // количество слов 50, длина слова 10 символов
 	for (i = 0; i < 50; i++)
 	{
 		tokens[i] = (char*)malloc(sizeof(char) * 10);
@@ -22,11 +23,11 @@ int main ()
 	{
 		printf("\n%s",tokens[i]);
 	}
-	/* for (i = 0; i < 50; i++)
+	for (i = 0; i < 50; i++)
 	{
-		free(tokens[i]);            если не комментить этот кусок кода, то возникает ошибка
-	}								пишет, что какие-то ячейки памяти освобождаются дважды, пофиксить то я не смог.
-	free(tokens); */
+			free(tokens[i]);         
+	}								
+	free(tokens); 
 	return 0;
 }
 
