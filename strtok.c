@@ -5,28 +5,32 @@
 
 #define MAX_STRING_SIZE 50
 #define MAX_DELIMETERS_COUNT 50
- 
-void Split(char* string, char * delimiters, char*** tokens, int* tokensCount);
 
 /*
- * FIXIT: Никаких магических чисел
- * Создайте константы: 
- * #define MAX_STRING_SIZE 50
- * #define MAX_DELIMETERS_COUNT 50
- * и т.д.
+ * У вас использование объявленных выше констант неверное.
  * 
- * P.S. c освободжением памяти мы с вами на семинаре разобрались 
+ * Не хватает ещё MAX_TOKENS_COUNT
+ * 
+  char** tokens = (char**)malloc(sizeof(char*) * MAX_TOKENS_COUNT);
+  for (i = 0; i < MAX_TOKENS_COUNT; i++)
+  {
+    tokens[i] = (char*)malloc(sizeof(char) * MAX_STRING_SIZE);
+  }
  */
+ 
+void Split(char* string, char * delimiters, char*** tokens, int* tokensCount);
 
 int main () 
 {	
 	int i, tokensCount = 0;
 	char string[MAX_STRING_SIZE], delimiters[MAX_DELIMETERS_COUNT];
-	char** tokens = (char**)malloc(sizeof(char*) * MAX_STRING_SIZE); // количество слов 50, длина слова 10 символов
-	for (i = 0; i < MAX_STRING_SIZE; i++)
+	char** tokens = (char**)malloc(sizeof(char*) * MAX_STRING_SIZE); // количество слов 50, длина слова 10 символоd
+  
+  for (i = 0; i < MAX_STRING_SIZE; i++)
 	{
 		tokens[i] = (char*)malloc(sizeof(char) * 10);
 	}
+
 	printf("Введите строку\n");
 	gets(string);
 	printf("Введите строку с разделителями\n");
@@ -39,7 +43,7 @@ int main ()
 	for (i = 0; i < MAX_STRING_SIZE; i++)
 	{
 			free(tokens[i]);         
-	}								
+	}
 	free(tokens); 
 	return 0;
 }
