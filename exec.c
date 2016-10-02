@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+#define MAX_LENGTH_OF_STRING 20
 
 void Split(char* string, char * delimiters, char*** tokens, int* tokensCount){
 	char* pointer = NULL; 
@@ -21,10 +22,10 @@ void Split(char* string, char * delimiters, char*** tokens, int* tokensCount){
 int main () 
 {
 /*
- * FIXIT: вынесите магические числа 50 и 20 в отдельные константы
+ * FIXIT: вынесите магические числа 50 и MAX_LENGTH_OF_STRING в отдельные константы
  */
 
-    char str[50];
+    char str[MAX_LENGTH_OF_STRING];
     int NUMBER_OF_STRING, i, j;
     FILE *file;
     int tokensCount = 0;
@@ -42,32 +43,32 @@ int main ()
  * 
  * лучше всегда обобщать свой код, а не сужать ... чтобы была возможность потенциального повторного использования
  */
-    file = fopen("my_command.txt", "w");
+   /* file = fopen("my_command.txt", "w");
     fprintf(file, "3\n");
     fprintf(file, "1 pwd \n");
     fprintf(file, "2 echo Hello, world!! \n");
     fprintf(file, "3 ls -l \n");
-    fclose(file);
+    fclose(file);*/
     file = fopen("my_command.txt", "r");
     
-    fgets(str, 20, file);
+    fgets(str, MAX_LENGTH_OF_STRING, file);
     NUMBER_OF_STRING = atoi(str);
-    char **tokens = (char**)malloc(sizeof(char*) * 20);
-    for (i = 0; i < 20 ; i++)
+    char **tokens = (char**)malloc(sizeof(char*) * MAX_LENGTH_OF_STRING);
+    for (i = 0; i < MAX_LENGTH_OF_STRING ; i++)
     {
-        tokens[i] = (char*)malloc(sizeof(char) * 20);
+        tokens[i] = (char*)malloc(sizeof(char) * MAX_LENGTH_OF_STRING);
     }
     
     for (i = 0; i < NUMBER_OF_STRING + 1; i++)
     {
-        fgets(str, 20, file);
+        fgets(str, MAX_LENGTH_OF_STRING, file);
         
-        for ( j = 0; j < 20; j++)
+        for ( j = 0; j < MAX_LENGTH_OF_STRING; j++)
         {
-            tokens[j] = (char*)malloc(sizeof(char) * 20);  
+            tokens[j] = (char*)malloc(sizeof(char) * MAX_LENGTH_OF_STRING);  
         }
         Split(str, delimiters, &tokens, &tokensCount);
-        for ( j = tokensCount; j < 20; j++)
+        for ( j = tokensCount; j < MAX_LENGTH_OF_STRING; j++)
         {
             tokens[j] = NULL;
         }
@@ -80,7 +81,7 @@ int main ()
         }
     }
     
-	for (i = 0; i < 20; i++)
+	for (i = 0; i < MAX_LENGTH_OF_STRING; i++)
 	{
 			free(tokens[i]);         
 	}

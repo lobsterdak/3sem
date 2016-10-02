@@ -3,6 +3,9 @@
 #include <malloc.h>
 #include <stdlib.h>
 
+#define MAX_STRING_SIZE 50
+#define MAX_DELIMETERS_COUNT 50
+ 
 void Split(char* string, char * delimiters, char*** tokens, int* tokensCount);
 
 /*
@@ -18,9 +21,9 @@ void Split(char* string, char * delimiters, char*** tokens, int* tokensCount);
 int main () 
 {	
 	int i, tokensCount = 0;
-	char string[50], delimiters[50];
-	char** tokens = (char**)malloc(sizeof(char*) * 50); // количество слов 50, длина слова 10 символов
-	for (i = 0; i < 50; i++)
+	char string[MAX_STRING_SIZE], delimiters[MAX_DELIMETERS_COUNT];
+	char** tokens = (char**)malloc(sizeof(char*) * MAX_STRING_SIZE); // количество слов 50, длина слова 10 символов
+	for (i = 0; i < MAX_STRING_SIZE; i++)
 	{
 		tokens[i] = (char*)malloc(sizeof(char) * 10);
 	}
@@ -33,7 +36,7 @@ int main ()
 	{
 		printf("\n%s",tokens[i]);
 	}
-	for (i = 0; i < 50; i++)
+	for (i = 0; i < MAX_STRING_SIZE; i++)
 	{
 			free(tokens[i]);         
 	}								
