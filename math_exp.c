@@ -10,7 +10,7 @@
 #define NUM 100000000
 
 int massiv[NUM];
-double result[6];
+double result[10];
 
 struct params{
     int index;
@@ -22,17 +22,11 @@ void *mythreadM(void *dummy)
 {
     struct params *ptr = (struct params*)(dummy);
     for (int i = ptr->start; i < ptr->finish + 1; i++){
-        result[ptr->index] = result[ptr->index] + massiv[i]; 
+        result[ptr->index] = result[ptr->index] + massiv[i];
+        result[ptr->index + 1] = result[ptr->index + 1] + massiv[i] * massiv[i]; 
     }
-    return NULL;
-}
-void *mythreadD(void *dummy)
-{
-    struct params *ptr = (struct params*)(dummy);
-    result[ptr->index] = 0;
-    for (int i = ptr->start; i < ptr->finish + 1; i++){
-        result[ptr->index] = result[ptr->index] + (massiv[i] - result[4]) * (massiv[i] - result[4]); 
-    }
+    result[ptr->index] = result[ptr->index] / NUM;
+    result[ptr->index + 1] = result[ptr->index + 1]/NUM;
     return NULL;
 }
 
@@ -44,31 +38,30 @@ int main(int argc, char* argv[], char* envp[])
     for (i = 0; i < NUM ; i++ ){
         massiv[i] = rand() % 50 ;
     }
-    for (i = 0; i < 6; i++)
+    for (i = 0; i < 10; i++)
         result[i] = 0;
     if (ON_THREADS == 0) {
         clock_t begin = clock();
         for (i = 0; i < NUM; i++){
-            result[4] = result[4] + (double)massiv[i];
+            result[8] = result[8] + (double)massiv[i];
         }
-        result[4] = result[4] / (double)NUM; 
+        result[8] = result[8] / (double)NUM; 
         for (i = 0; i < NUM; i++){
-            result[5] = result[5] + (result[4] - (double)massiv[i]) * (result[4] - (double)massiv[i]);
+            result[9] = result[9] + (result[8] - (double)massiv[i]) * (result[8] - (double)massiv[i]);
         }
-        result[5] = result[5] / NUM;
+        result[9] = result[9] / NUM;
         clock_t end = clock();
         double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        printf("НЕ НИТИ\nМАТОЖИДАНИЕ = %lg\nДИСПЕРСИЯ = %lg\nВРЕМЯ = %lg\n", result[4], result[5], time_spent); 
+        printf("НЕ НИТИ\nМАТОЖИДАНИЕ = %lg\nДИСПЕРСИЯ = %lg\nВРЕМЯ = %lg\n", result[8], result[9], time_spent); 
     }
     else {
         clock_t begin = clock();
-        pthread_t mthid_0, mthid_1, mthid_2, mthid_3, dthid_0, dthid_1, dthid_2, dthid_3;
+        pthread_t mthid_0, mthid_1, mthid_2, mthid_3;
         struct params param[4];
         for (i = 0; i < 4; i++){
-            param[i].index = i;
+            param[i].index = 2 * i;
             param[i].start = i * NUM / 4;
             param[i].finish = (i + 1) * NUM / 4 - 1;
-            //printf("index %d start %d finish %d\n", param[i].index, param[i].start, param[i].finish); 
         }
       
         pthread_create( &mthid_0, (pthread_attr_t *)NULL, mythreadM, (void *)param);
@@ -79,21 +72,11 @@ int main(int argc, char* argv[], char* envp[])
         pthread_join(mthid_1, (void **)NULL);
         pthread_join(mthid_2, (void **)NULL);
         pthread_join(mthid_3, (void **)NULL);
-        result[4] = (result[0] + result[1] + result[2] + result[3]) / NUM;
-        if (result[4]){
-            pthread_create( &dthid_0, (pthread_attr_t *)NULL, mythreadD, (void *)param);
-            pthread_create( &dthid_1, (pthread_attr_t *)NULL, mythreadD, (void *)(param + 1));
-            pthread_create( &dthid_2, (pthread_attr_t *)NULL, mythreadD, (void *)(param + 2));
-            pthread_create( &dthid_3, (pthread_attr_t *)NULL, mythreadD, (void *)(param + 3));
-            pthread_join(dthid_0, (void **)NULL);
-            pthread_join(dthid_1, (void **)NULL);
-            pthread_join(dthid_2, (void **)NULL);
-            pthread_join(dthid_3, (void **)NULL);
-            result[5] = (result[0] + result[1] + result[2] + result[3]) / NUM;
-        }
+        result[8] = (result[0] + result[2] + result[4] + result[6]);
+        result[9] = (result[1] + result[3] + result[5] + result[7]) - result[8] * result[8];
         clock_t end = clock();
         double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        printf("НИТИ\nМАТОЖИДАНИЕ = %lg\nДИСПЕРСИЯ = %lg\nВРЕМЯ = %lg\n", result[4], result[5], time_spent); 
+        printf("НИТИ\nМАТОЖИДАНИЕ = %lg\nДИСПЕРСИЯ = %lg\nВРЕМЯ = %lg\n", result[8], result[9], time_spent); 
     }
     return 0;
 }
