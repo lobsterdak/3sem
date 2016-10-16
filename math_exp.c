@@ -7,10 +7,19 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define NUM 100000000
 
-int massiv[NUM];
-double result[10];
+/* Время без  нитей = 0.237643
+ * Время с 4 нитями = 0.106461*/
+
+
+#define NUM 100000000
+#define NUM_OF_THREADS 4
+
+struct timespec start, finish;
+double elapsed;
+
+int numbers[NUM];
+double result[2 * (NUM_OF_THREADS + 1)];
 
 struct params{
     int index;
@@ -22,11 +31,11 @@ void *mythreadM(void *dummy)
 {
     struct params *ptr = (struct params*)(dummy);
     for (int i = ptr->start; i < ptr->finish + 1; i++){
-        result[ptr->index] = result[ptr->index] + massiv[i];
-        result[ptr->index + 1] = result[ptr->index + 1] + massiv[i] * massiv[i]; 
+        result[ptr->index] = result[ptr->index] + numbers[i];
+        result[ptr->index + 1] = result[ptr->index + 1] + numbers[i] * numbers[i]; 
     }
     result[ptr->index] = result[ptr->index] / NUM;
-    result[ptr->index + 1] = result[ptr->index + 1]/NUM;
+    result[ptr->index + 1] = result[ptr->index + 1] / NUM;
     return NULL;
 }
 
@@ -36,47 +45,49 @@ int main(int argc, char* argv[], char* envp[])
     int i;
     //srand(time(NULL));
     for (i = 0; i < NUM ; i++ ){
-        massiv[i] = rand() % 50 ;
+        numbers[i] = rand() % 50 ;
     }
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < 2 * (NUM_OF_THREADS + 1); i++)
         result[i] = 0;
     if (ON_THREADS == 0) {
-        clock_t begin = clock();
+        clock_gettime(CLOCK_MONOTONIC, &start);
         for (i = 0; i < NUM; i++){
-            result[8] = result[8] + (double)massiv[i];
+            result[2 * NUM_OF_THREADS] = result[2 * NUM_OF_THREADS] + (double)numbers[i];
         }
-        result[8] = result[8] / (double)NUM; 
+        result[2 * NUM_OF_THREADS] = result[2 * NUM_OF_THREADS] / NUM; 
         for (i = 0; i < NUM; i++){
-            result[9] = result[9] + (result[8] - (double)massiv[i]) * (result[8] - (double)massiv[i]);
+            result[2 * NUM_OF_THREADS + 1] = result[2 * NUM_OF_THREADS + 1] + (result[2 * NUM_OF_THREADS] - (double)numbers[i]) * (result[2 * NUM_OF_THREADS] - (double)numbers[i]);
         }
-        result[9] = result[9] / NUM;
-        clock_t end = clock();
-        double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        printf("НЕ НИТИ\nМАТОЖИДАНИЕ = %lg\nДИСПЕРСИЯ = %lg\nВРЕМЯ = %lg\n", result[8], result[9], time_spent); 
+        result[2 * NUM_OF_THREADS + 1] = result[2 * NUM_OF_THREADS + 1] / NUM;
+        clock_gettime(CLOCK_MONOTONIC, &finish);
+        elapsed = (finish.tv_sec - start.tv_sec);
+        elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+        printf("НЕ НИТИ\nМАТОЖИДАНИЕ = %lg\nДИСПЕРСИЯ = %lg\nВРЕМЯ = %lg\n", result[8], result[9], elapsed); 
     }
     else {
-        clock_t begin = clock();
-        pthread_t mthid_0, mthid_1, mthid_2, mthid_3;
-        struct params param[4];
-        for (i = 0; i < 4; i++){
+        clock_gettime(CLOCK_MONOTONIC, &start);
+        pthread_t mthid[NUM_OF_THREADS];
+        struct params param[NUM_OF_THREADS];
+        for (i = 0; i < NUM_OF_THREADS; i++){
             param[i].index = 2 * i;
-            param[i].start = i * NUM / 4;
-            param[i].finish = (i + 1) * NUM / 4 - 1;
+            param[i].start = i * NUM / NUM_OF_THREADS;
+            param[i].finish = (i + 1) * NUM / NUM_OF_THREADS - 1;
         }
-      
-        pthread_create( &mthid_0, (pthread_attr_t *)NULL, mythreadM, (void *)param);
-        pthread_create( &mthid_1, (pthread_attr_t *)NULL, mythreadM, (void *)(param + 1));
-        pthread_create( &mthid_2, (pthread_attr_t *)NULL, mythreadM, (void *)(param + 2));
-        pthread_create( &mthid_3, (pthread_attr_t *)NULL, mythreadM, (void *)(param + 3));
-        pthread_join(mthid_0, (void **)NULL);
-        pthread_join(mthid_1, (void **)NULL);
-        pthread_join(mthid_2, (void **)NULL);
-        pthread_join(mthid_3, (void **)NULL);
-        result[8] = (result[0] + result[2] + result[4] + result[6]);
-        result[9] = (result[1] + result[3] + result[5] + result[7]) - result[8] * result[8];
-        clock_t end = clock();
-        double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        printf("НИТИ\nМАТОЖИДАНИЕ = %lg\nДИСПЕРСИЯ = %lg\nВРЕМЯ = %lg\n", result[8], result[9], time_spent); 
+        for (i = 0; i < NUM_OF_THREADS; i++){
+        pthread_create( &mthid[i], (pthread_attr_t *)NULL, mythreadM, (void *)(param + i));
+        }
+        for (i = 0; i < NUM_OF_THREADS; i++) {
+        pthread_join(mthid[i], (void **)NULL);
+        }
+        for (i = 0; i < NUM_OF_THREADS; i++) {
+        result[2 * NUM_OF_THREADS] = result[2 * NUM_OF_THREADS] + result[2 * i];
+        result[2 * NUM_OF_THREADS + 1] = result[2 * NUM_OF_THREADS + 1] + result[2 * i + 1];
+        }
+        result[2 * NUM_OF_THREADS + 1] = result[2 * NUM_OF_THREADS + 1] - result[2 * NUM_OF_THREADS] * result[2 * NUM_OF_THREADS] ;
+        clock_gettime(CLOCK_MONOTONIC, &finish);
+        elapsed = (finish.tv_sec - start.tv_sec);
+        elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+        printf("НИТИ\nМАТОЖИДАНИЕ = %lg\nДИСПЕРСИЯ = %lg\nВРЕМЯ = %lg\n", result[2 * NUM_OF_THREADS], result[2 * NUM_OF_THREADS + 1], elapsed); 
     }
     return 0;
 }
