@@ -9,7 +9,16 @@
 
 #define NUM 100000000
 
+/*
+ * FIXIT: транстлита быть не должно
+ */
 int massiv[NUM];
+
+/*
+ * FIXIT: Необходимо вынести 10 в отдельную константу THREADS_COUNT, при изменении
+ * которой остальной код править не нужно было бы. Либо передавайте как аргумент командной строки,
+ * лишь бы как-то параметризовано было.
+ */
 double result[10];
 
 struct params{
@@ -24,6 +33,10 @@ void *mythreadM(void *dummy)
     for (int i = ptr->start; i < ptr->finish + 1; i++){
         result[ptr->index] = result[ptr->index] + massiv[i]; 
     }
+    
+    /*
+     * FIXIT: это 4 явно как-то зависит от числа нитей. Нужно видимо связать с константой THREADS_COUNT.
+     */
     result[ptr->index] = 4 * result[ptr->index] / NUM;
         for (int i = ptr->start; i < ptr->finish + 1; i++){
         result[ptr->index + 1] = result[ptr->index + 1] + (massiv[i] - result[ptr->index]) * (massiv[i] - result[ptr->index]); 
@@ -41,6 +54,7 @@ int main(int argc, char* argv[], char* envp[])
     }
     for (i = 0; i < 10; i++)
         result[i] = 0;
+    
     if (ON_THREADS == 0) {
         clock_t begin = clock();
         for (i = 0; i < NUM; i++){
@@ -57,6 +71,14 @@ int main(int argc, char* argv[], char* envp[])
     }
     else {
         clock_t begin = clock();
+        /*
+         * Про clock я забыл одну особенность, с который почти каждый год сталкиваемся:
+         * http://stackoverflow.com/questions/2962785/c-using-clock-to-measure-time-in-multi-threaded-programs
+         * 
+         * Это объясняет, почему ускорение не наблюдалось: clock считает суммарное время работы процессоров, которое
+         * в случае нескольких нитей даже больше, т.к. что-то тратится на переключения контекстов и др. служебные нужды.
+         * В ссылке предложен альтернативный вариант замерения времени.
+         */
         pthread_t mthid_0, mthid_1, mthid_2, mthid_3;
         struct params param[4];
         for (i = 0; i < 4; i++){
