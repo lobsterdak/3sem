@@ -19,6 +19,13 @@ struct timespec start, finish;
 double elapsed;
 
 int numbers[NUM];
+
+/*
+ * Я бы сделал два массива: averages и dispersions, либо sum и squareSum, вместо одного массива results,
+ * где в чётных позициях хранится сумма элементов, а в нечетных - сумма квадратов.
+ * 
+ * Вы не выигрываете лаконичности кода, зато проигрываете в читаемости.
+ */
 double result[2 * (NUM_OF_THREADS + 1)];
 
 struct params{
@@ -74,14 +81,14 @@ int main(int argc, char* argv[], char* envp[])
             param[i].finish = (i + 1) * NUM / NUM_OF_THREADS - 1;
         }
         for (i = 0; i < NUM_OF_THREADS; i++){
-        pthread_create( &mthid[i], (pthread_attr_t *)NULL, mythreadM, (void *)(param + i));
+            pthread_create( &mthid[i], (pthread_attr_t *)NULL, mythreadM, (void *)(param + i));
         }
         for (i = 0; i < NUM_OF_THREADS; i++) {
-        pthread_join(mthid[i], (void **)NULL);
+            pthread_join(mthid[i], (void **)NULL);
         }
         for (i = 0; i < NUM_OF_THREADS; i++) {
-        result[2 * NUM_OF_THREADS] = result[2 * NUM_OF_THREADS] + result[2 * i];
-        result[2 * NUM_OF_THREADS + 1] = result[2 * NUM_OF_THREADS + 1] + result[2 * i + 1];
+            result[2 * NUM_OF_THREADS] = result[2 * NUM_OF_THREADS] + result[2 * i];
+            result[2 * NUM_OF_THREADS + 1] = result[2 * NUM_OF_THREADS + 1] + result[2 * i + 1];
         }
         result[2 * NUM_OF_THREADS + 1] = result[2 * NUM_OF_THREADS + 1] - result[2 * NUM_OF_THREADS] * result[2 * NUM_OF_THREADS] ;
         clock_gettime(CLOCK_MONOTONIC, &finish);
