@@ -4,6 +4,7 @@
 
 #define k 6
 
+
 void GenerateString(int n, char * string);
 
 int main() 

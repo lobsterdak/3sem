@@ -3,6 +3,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 
+
 #define MAX_STRING_SIZE 50
 #define MAX_DELIMETERS_COUNT 50
 #define MAX_TOKENS_COUNT 50
