@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#define TABLE_LIMIT 4
+#define TABLE_LIMIT 2
 #define BIG_CONST 100
 
 
