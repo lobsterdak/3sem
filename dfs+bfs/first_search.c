@@ -4,6 +4,9 @@
 #include "stk.h"
 #include "que.h"
 
+/*
+ * обычно для "вершин" используют слова nodes или vertices
+ */
 int **read_from_file(const char *name, int *num_of_tops);
 void print_array_tree(int **tree, int num_of_tops);
 void dfs(int **tree, int *used, int num_of_tops, int top, struct Stack *stk);
@@ -39,6 +42,10 @@ void bfs(int **tree, int *used, int num_of_tops, int start, struct Queue *que){
     int i = 0;
     push_q_back(que, start);
     used[start] = 1;
+    /*
+     * можно писать просто
+     * while (!is_empty_q(que))
+     */
     while (is_empty_q(que) != 1){
         //printf("ЖОРА %d\n", is_empty_q(que));
         for (i = 0; i < num_of_tops; i++){
@@ -72,18 +79,18 @@ void dfs(int **tree, int *used, int num_of_tops, int start, struct Stack *stk){
 }
 
 int **read_from_file(const char *name, int *num_of_tops){
-int j = 0, i = 0;
-FILE *file = fopen(name, "r");
-fscanf(file, "%d", num_of_tops);
-int **tree = (int **)malloc(sizeof(int*) * (*num_of_tops));
-for (j = 0; j < (*num_of_tops); j++){
-    tree[j] = (int *)malloc(sizeof(int) * (*num_of_tops)); 
-    for (i = 0; i < (*num_of_tops); i++){
-        fscanf(file, "%d", tree[j] + i);
-    }
-}
-fclose(file);
-return tree;
+  int j = 0, i = 0;
+  FILE *file = fopen(name, "r");
+  fscanf(file, "%d", num_of_tops);
+  int **tree = (int **)malloc(sizeof(int*) * (*num_of_tops));
+  for (j = 0; j < (*num_of_tops); j++){
+      tree[j] = (int *)malloc(sizeof(int) * (*num_of_tops)); 
+      for (i = 0; i < (*num_of_tops); i++){
+          fscanf(file, "%d", tree[j] + i);
+      }
+  }
+  fclose(file);
+  return tree;
 }
 
 void print_array_tree(int **tree, int num_of_tops){
