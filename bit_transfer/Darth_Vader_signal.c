@@ -42,8 +42,20 @@ void send_bit(int nsig){
         kill(son_pid, read_0_bit_son);
         send_bit_counter++;
     }
+    
+    /*
+     * то же самое можно написать в 2 строки:
+     * kill(son_pid, sending_symbol >> (7 - send_bit_counter)) & 1 ? ead_1_bit_son : read_0_bit_son);
+     * send_bit_counter++;
+     * 
+     * конструкция вида (условие) ? (значение1) : (значение2) называется тернарный оператор
+     */
 }
 
+/*
+ * у вас код для get_0_bit и get_1_bit отличается на 1 символ :) почему бы не избавиться от дублирования кода, сделав одну ф-ю get_bit,
+ * которая в зависимости от принятого сигнала nsig выполняет либо |0, лио |1.
+ */
 void get_0_bit(int nsig){
     getting_symbol = ((getting_symbol << 1) | 0);
     get_bit_counter++;
