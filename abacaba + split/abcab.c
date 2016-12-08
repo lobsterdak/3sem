@@ -32,3 +32,4 @@ void GenerateString(int n, char * string)
 	}
 	free(temp);	
 }
+//хуй
